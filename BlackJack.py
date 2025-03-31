@@ -1,3 +1,10 @@
+'''
+Student Name: Abheek Tuladhar
+Game title: Blackjack
+Period: 4
+Features of Game: Black jack game with implemented betting and high scores
+'''
+
 import pygame, sys, random, os
 
 pygame.init()
@@ -83,7 +90,7 @@ def findHighScore(money):
             high = int(high2[0].split(" ")[0])
             name = high2[0].split(" ")[1]
 
-        except IndexError: #Should only happen if the file is blank
+        except IndexError or ValueError: #Should only happen if the file is blank
             with open("HighScore.txt", 'w', encoding = "utf-8") as iF:
                 iF.write(str(money) + " Error")
 
@@ -96,7 +103,7 @@ def findHighScore(money):
             return high, name, False
 
 
-def drawScreen(playerHand, dealerHand, money, bet, running, done, show_hit_stand, show_deal_button, high_score_input, user_name):
+def drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructions, show_hit_stand, show_deal_button, high_score_input, user_name):
     """
     Draws the surface
 
@@ -162,13 +169,14 @@ def drawScreen(playerHand, dealerHand, money, bet, running, done, show_hit_stand
     show_message(f"Holder: {name.strip()}", "Times New Roman", 30, 13*xu, ((60*yu)+HEIGHT)//2, EMERALD)
 
     #Messages on controls
-    show_message("'A' key : All In", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 0.5*yu, SAFFRON, BLACK)
-    show_message("Enter for 'Submit' button (For High Score)", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 3*yu, SAFFRON, BLACK)
-    show_message("Up Arrow : Increase bet by 1", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 5.5*yu, SAFFRON, BLACK)
-    show_message("Down Arrow : Decrease bet by 1", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 8*yu, SAFFRON, BLACK)
-    show_message("Left Arrow : Decrease bet by 10", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 10.5*yu, SAFFRON, BLACK)
-    show_message("Right Arrow : Increase bet by 10", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 13*yu, SAFFRON, BLACK)
-    show_message("(Can't change bet after deal)", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 15.5*yu, SAFFRON, BLACK)
+    if show_instructions:
+        show_message("'A' key : All In", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 0.5*yu, SAFFRON, BLACK)
+        show_message("Enter for 'Submit' button (For High Score)", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 3*yu, SAFFRON, BLACK)
+        show_message("Up Arrow : Increase bet by 1", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 5.5*yu, SAFFRON, BLACK)
+        show_message("Down Arrow : Decrease bet by 1", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 8*yu, SAFFRON, BLACK)
+        show_message("Left Arrow : Decrease bet by 10", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 10.5*yu, SAFFRON, BLACK)
+        show_message("Right Arrow : Increase bet by 10", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 13*yu, SAFFRON, BLACK)
+        show_message("(Can't change bet after deal)", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 15.5*yu, SAFFRON, BLACK)
 
     if getHandTotal(playerHand)[1] == False or getHandTotal(dealerHand)[1] == False: #If the game is over for either the player or the dealer
         running = False
@@ -195,7 +203,8 @@ def drawScreen(playerHand, dealerHand, money, bet, running, done, show_hit_stand
             no_money_bounds = show_message("You Ran Out Of Money, Restart?", "Times New Roman", 30, WIDTH/2, (HEIGHT-8*yu), DW_RED, BLACK, True)
 
         message, color, money, bet, done = findWinner(playerHand, dealerHand, money, bet, done)
-        show_message(message, "Times New Roman", 50, WIDTH/2, HEIGHT/2, color, BLACK) #If the game isn't runningn and it isn't the dealers turn, then we will blit out the end game message
+        show_instructions = False
+        show_message(message, "Times New Roman", 80, WIDTH/2, HEIGHT/2, color) #If the game isn't runningn and it isn't the dealers turn, then we will blit out the end game message
 
     if high_score_input:
         running = False
@@ -244,7 +253,7 @@ def drawScreen(playerHand, dealerHand, money, bet, running, done, show_hit_stand
     show_message(str(playertotal), "Times New Roman", 50, 60*xu, 65*yu, DW_RED)
     show_message(str(dealertotal), "Times New Roman", 50, 60*xu, 30*yu, DW_RED)
 
-    return deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done
+    return deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done, show_instructions
 
 
 def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
@@ -526,6 +535,7 @@ def main():
     betdone = False
     no_money = False
     high_score_input = False
+    show_instructions = True
     user_name = ""
 
     while True:
@@ -579,7 +589,7 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN: #A lot of button click if statements will follow
                 mouse_pos = pygame.mouse.get_pos()
-                deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done = drawScreen(playerHand, dealerHand, money, bet, running, done, show_hit_stand_buttons, show_deal_button, high_score_input, user_name)
+                deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done, show_instructions = drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructions, show_hit_stand_buttons, show_deal_button, high_score_input, user_name)
 
                 if deal_bounds != None and deal_bounds.collidepoint(mouse_pos) and running: #If deal button is clicked
                     mainDeck, playerHand, dealerHand = newHand(mainDeck)
@@ -615,6 +625,7 @@ def main():
                     betdone = False
                     no_money = False
                     high_score_input = False
+                    show_instructions = True
                     user_name = ""
 
                 if no_money_bounds != None and no_money_bounds.collidepoint(mouse_pos): #If the 'ran out of money' button is clicked
@@ -635,6 +646,7 @@ def main():
                     betdone = False
                     no_money = False
                     high_score_input = False
+                    show_instructions = True
                     user_name = ""
 
                 if submit_bounds != None and submit_bounds.collidepoint(mouse_pos) and high_score_input: #If submit button is pressed
@@ -653,7 +665,7 @@ def main():
             high_score_input = True
 
         surface.fill(BLACK)
-        deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done = drawScreen(playerHand, dealerHand, money, bet, running, done, show_hit_stand_buttons, show_deal_button, high_score_input, user_name)
+        deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done, show_instructions = drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructions, show_hit_stand_buttons, show_deal_button, high_score_input, user_name)
 
         pygame.display.update()
 
