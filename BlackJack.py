@@ -170,6 +170,7 @@ def drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructi
 
     #Messages on controls
     if show_instructions:
+        show_message("'H' key : Half Money for Bet", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 - 2*yu, SAFFRON, BLACK)
         show_message("'A' key : All In", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 0.5*yu, SAFFRON, BLACK)
         show_message("Enter for 'Submit' button (For High Score)", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 3*yu, SAFFRON, BLACK)
         show_message("Up Arrow : Increase bet by 1", "Times New Roman", 20, WIDTH - 17*xu, HEIGHT//2 + 5.5*yu, SAFFRON, BLACK)
@@ -586,6 +587,8 @@ def main():
 
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_a and not submit_bounds: #All in. The not submit_bounds because let's say your name has an A and you have $3261 and want to bet 100. That's a lot of hitting.
                     bet = money
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_h and not submit_bounds:
+                    bet = money//2
 
             if event.type == pygame.MOUSEBUTTONDOWN: #A lot of button click if statements will follow
                 mouse_pos = pygame.mouse.get_pos()
