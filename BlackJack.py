@@ -103,7 +103,7 @@ def findHighScore(money):
             return high, name, False
 
 
-def drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructions, show_hit_stand, show_deal_button, high_score_input, user_name):
+def drawScreen(playerHand, dealerHand, money, bet, running, done, highmoney, name, show_instructions, show_hit_stand, show_deal_button, high_score_input, user_name):
     """
     Draws the surface
 
@@ -122,6 +122,12 @@ def drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructi
     done : bool
         If the current game is done
         Gets put to false if Again button is clicked
+    highmoney : int
+        The high score
+    name : str
+        The name of the high score holder
+    show_instructions : bool
+        Whether to show the instructions or not
     show_hit_stand : bool
         Whether to show the hit and stand buttons
     show_deal_button : bool
@@ -155,6 +161,8 @@ def drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructi
     done : bool
         If the current game is done
         Gets put to false if Again button is clicked
+    show_instructions : bool
+        Whether to show the instructions or not
     """
 
     surface.blit(BG, (0, 0))
@@ -163,8 +171,7 @@ def drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructi
     show_message("Dealer:", "Times New Roman", 50, 13*xu, 20*yu, SAFFRON)
     show_message("Player:", "Times New Roman", 50, 13*xu, ((20*yu) + HEIGHT)//2, SAFFRON) #((20*yu) + HEIGHT)//2 takes the dealer y value and finds the middle of the screen from the bottom to the dealer, for the midpoint
     show_message(f"Money: {money:,}", "Times New Roman", 30, 30*xu, (HEIGHT-2*xu), SAFFRON)
-    show_message("Bet: " + str(bet), "Times New Roman", 30, 50*xu, (HEIGHT-2*xu), SAFFRON)
-    highmoney, name = findHighScore(money)[0:2]
+    show_message(f"Bet: {bet:,}", "Times New Roman", 30, 50*xu, (HEIGHT-2*xu), SAFFRON)
     show_message(f"High Score: ${highmoney:,}", "Times New Roman", 30, 13*xu, ((30*yu)+HEIGHT)//2, EMERALD)
     show_message(f"Holder: {name.strip()}", "Times New Roman", 30, 13*xu, ((60*yu)+HEIGHT)//2, EMERALD)
 
@@ -538,6 +545,7 @@ def main():
     high_score_input = False
     show_instructions = True
     user_name = ""
+    highmoney, name = findHighScore(money)[:2]
 
     while True:
         for event in pygame.event.get():
@@ -549,6 +557,8 @@ def main():
                 if event.key == pygame.K_RETURN: #If they hit enter, write to file
                     with open("HighScore.txt", 'w', encoding = "utf-8") as iF:
                         iF.write(str(money) + " " + user_name)
+                        highmoney = money
+                        name = user_name.split(" ")[0] #Only take the first name, in case they put a last name
 
                     high_score_input = False
 
@@ -556,7 +566,7 @@ def main():
                     user_name = user_name[:-1]
 
                 else:
-                    if len(user_name) < 20: #When it starts to go out of the box. So it won't add if it's over
+                    if len(user_name) < 13: #When it starts to go out of the box. So it won't add if it's over
                         user_name += event.unicode
 
             if bet > money:
@@ -592,7 +602,7 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN: #A lot of button click if statements will follow
                 mouse_pos = pygame.mouse.get_pos()
-                deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done, show_instructions = drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructions, show_hit_stand_buttons, show_deal_button, high_score_input, user_name)
+                deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done, show_instructions = drawScreen(playerHand, dealerHand, money, bet, running, done, highmoney, name, show_instructions, show_hit_stand_buttons, show_deal_button, high_score_input, user_name)
 
                 if deal_bounds != None and deal_bounds.collidepoint(mouse_pos) and running: #If deal button is clicked
                     mainDeck, playerHand, dealerHand = newHand(mainDeck)
@@ -655,6 +665,8 @@ def main():
                 if submit_bounds != None and submit_bounds.collidepoint(mouse_pos) and high_score_input: #If submit button is pressed
                     with open("HighScore.txt", 'w', encoding = "utf-8") as iF:
                         iF.write(str(money) + " " + user_name)
+                        highmoney = money
+                        name = user_name.split(" ")[0] #Only take the first name, in case they put a last name
                     high_score_input = False
                     user_name = ""
 
@@ -668,7 +680,7 @@ def main():
             high_score_input = True
 
         surface.fill(BLACK)
-        deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done, show_instructions = drawScreen(playerHand, dealerHand, money, bet, running, done, show_instructions, show_hit_stand_buttons, show_deal_button, high_score_input, user_name)
+        deal_bounds, hit_bounds, stand_bounds, again_bounds, no_money_bounds, submit_bounds, running, money, bet, done, show_instructions = drawScreen(playerHand, dealerHand, money, bet, running, done, highmoney, name, show_instructions, show_hit_stand_buttons, show_deal_button, high_score_input, user_name)
 
         pygame.display.update()
 
